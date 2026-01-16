@@ -1,0 +1,47 @@
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: school_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-school_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5440:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/import.sql:/docker-entrypoint-initdb.d/import.sql
+
+    networks:
+      - school_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d school_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    container_name: school_backend
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URI: jdbc:postgresql://db:5432/${POSTGRES_DB:-school_db}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_DRIVER: org.postgresql.Driver
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    networks:
+      - school_network
+
+volumes:
+  postgres_data:
+
+networks:
+  school_network:
+    driver: bridge
