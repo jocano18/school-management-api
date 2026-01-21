@@ -33,7 +33,15 @@ public class AlumnoController {
     @PostMapping
     public ResponseEntity<Alumno> crear(@RequestBody Alumno alumno){
         Alumno nuevoAlumno = alumnoService.save(alumno);
+        
         return new ResponseEntity<>(nuevoAlumno, HttpStatus.CREATED);
+
+    }
+      @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<Map<String, String>> handleNotFound(NoSuchElementException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
 
@@ -45,6 +53,7 @@ public class AlumnoController {
                 .toList();
         return ResponseEntity.ok(dtos);
     }
+     
 
 
      //GET ALUMNO BY ID
@@ -59,6 +68,12 @@ public class AlumnoController {
         AlumnoDetalleDTO detalle = new AlumnoDetalleDTO(a.getId(), a.getNombre(), a.getApellido(), a.getEmail(), a.getFechaNacimiento(), notasDto);
         return ResponseEntity.ok(detalle);
     }
+      @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<Map<String, String>> handleNotFound(NoSuchElementException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 
 
     //FULL UPDATE (PUT)
@@ -66,10 +81,20 @@ public class AlumnoController {
     public ResponseEntity<Alumno> actualizarAlumnoTotal(@PathVariable Long id, @RequestBody Alumno alumno){
         return ResponseEntity.ok(alumnoService.update(id, alumno));
     }
+     @ExceptionHandler(UsuarioNoEncontradoException.class)
+    public ResponseEntity<String> manejarUsuarioNoEncontrado(UsuarioNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Alumno no encontrado: " + ex.getMessage());
+    }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Alumno> actualizarAlumnoParcial(@PathVariable Long id, @RequestBody Alumno alumnoDetalles){
         return ResponseEntity.ok(alumnoService.updatePatch(id , alumnoDetalles));
+    }
+     @ExceptionHandler(UsuarioNoEncontradoException.class)
+    public ResponseEntity<String> manejarUsuarioNoEncontrado(UsuarioNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Alumno no encontrado: " + ex.getMessage());
     }
 
 
@@ -78,5 +103,10 @@ public class AlumnoController {
     public ResponseEntity<Void> delete(@PathVariable Long id){
         alumnoService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+     @ExceptionHandler(UsuarioNoEncontradoException.class)
+    public ResponseEntity<String> manejarUsuarioNoEncontrado(UsuarioNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Alumno no encontrado no es posible elimanarlo: " + ex.getMessage());
     }
 }

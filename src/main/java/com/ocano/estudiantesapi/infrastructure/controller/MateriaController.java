@@ -44,6 +44,11 @@ public class MateriaController {
     public ResponseEntity<Materia> obtenerPorId(@PathVariable Long id){
         return ResponseEntity.ok(materiaService.findById(id));
     }
+     @ExceptionHandler(MateriaNoEncontradoException.class)
+    public ResponseEntity<String> manejarMateriaoNoEncontrado(MateriaNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Materia no encontrada " + ex.getMessage());
+    }
 
 
      //FULL UPDATE (PUT)
@@ -51,9 +56,21 @@ public class MateriaController {
     public ResponseEntity<Materia> actualizarTodo(@PathVariable Long id, @RequestBody Materia materiaDetails) {
         return ResponseEntity.ok(materiaService.update(id, materiaDetails));
     }
+    @ExceptionHandler(MateriaNoEncontradoException.class)
+    public ResponseEntity<String> manejarMateriaoNoEncontrado(MateriaNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Materia no encontrado" + ex.getMessage());
+    }        .body("Usuario no encontrado: " + ex.getMessage());
+    }
     @PatchMapping("/{id}")
     public ResponseEntity<Materia> actualizarParcial(@PathVariable Long id, @RequestBody Materia materiaDetails){
         return ResponseEntity.ok(materiaService.updatePatch(id, materiaDetails));
+    }
+
+    @ExceptionHandler(MateriaNoEncontradoException.class)
+    public ResponseEntity<String> manejarMateriaoNoEncontrado(MateriaNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Materia no encontrado" + ex.getMessage());
     }
 
 
@@ -63,5 +80,10 @@ public class MateriaController {
     public ResponseEntity<Void> delete(@PathVariable Long id){
         materiaService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+     @ExceptionHandler(MateriaNoEncontradoException.class)
+    public ResponseEntity<String> manejarMateriaoNoEncontrado(MateriaNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Materia no encontrado:No puedes elimnarlo " + ex.getMessage());
     }
 }

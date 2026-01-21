@@ -30,7 +30,7 @@ public class NotaController {
         Nota notaNueva = notaService.registrarNota(alumnoId, materiaId, valor);
         return new ResponseEntity<>(notaNueva , HttpStatus.CREATED);
     }
-
+    
      //GET ALL GRADES FOR A SPECIFIC STUDENT
     @GetMapping("/alumno/{id}")
     public ResponseEntity<List<NotaDTO>> listarPorAlumno(@PathVariable Long id){
@@ -39,4 +39,10 @@ public class NotaController {
                 .toList();
         return ResponseEntity.ok(notasDto);
     }
+     @ExceptionHandler(UsuarioNoEncontradoException.class)
+    public ResponseEntity<String> manejarAlumnoNoEncontrado(AlumnoNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Alumno no encontrado: " + ex.getMessage());
+    }
+
 }
